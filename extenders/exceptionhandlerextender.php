@@ -3,15 +3,18 @@
 class ExceptionHandlerExtender
 {
     private $logger;
+    private $response;
 
-    public function __construct(LoggerInterface $logger) {
+    public function __construct(LoggerInterface $logger, Response $response) {
         $this->logger = $logger;
+        $this->response = $response;
     }
 
     public function extend() {
         return array(
             "web" => "handleWebException",
-            "api" => "handleApiException"
+            "api" => "handleApiException",
+            "stream" => "handleStreamException",
         );
     }
 
@@ -25,6 +28,13 @@ class ExceptionHandlerExtender
         $this->logger->setType(Logger::LOGGER_API);
         $this->logger->logException($e);
         echo Factory::getObject(Factory::TYPE_API_EXCEPTION)->getApiException($e);
+        die();
+    }
+
+    public function handleStreamException(Exception $e) {
+        $this->logger->setType(Logger::LOGGER_STREAM);
+        $this->logger->logException($e);
+        echo $this->response->returnApiException($e->getMessage(), $e->getCode());
         die();
     }
 }

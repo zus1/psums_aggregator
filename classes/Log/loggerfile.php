@@ -15,12 +15,12 @@ class LoggerFile extends Logger implements LoggerInterface
         return array(
             self::LOGGER_WEB => array("file" => $this->rootDirectory . "web.log"),
             self::LOGGER_API => array("file" => $this->rootDirectory . "api.log"),
+            self::LOGGER_STREAM => array("file" => $this->rootDirectory . "stream.log"),
             self::LOGGER_DEFAULT => array("file" => $this->rootDirectory . "log.log"),
         )[$type];
     }
 
-    public function logException(Exception $e): void
-    {
+    private function createLogDirectory() {
         if(!file_exists($this->rootDirectory)) {
             mkdir($this->rootDirectory, 0777);
             $owner = posix_getpwuid(fileowner($this->rootDirectory))["name"];
@@ -29,7 +29,9 @@ class LoggerFile extends Logger implements LoggerInterface
                 chown($this->rootDirectory, "www-data");
             }
         }
+    }
 
+    private function addLine(string $line) {
         $setting = $this->getLoggerSettings($this->type);
         if(!$setting) {
             return;
@@ -37,13 +39,27 @@ class LoggerFile extends Logger implements LoggerInterface
         $fh = fopen($setting["file"], "a+");
         if(!$fh) {
             throw new Exception("Could not open log file");
-        }
-        $line = $this->createLogExceptionLine($e);
+        };
         fwrite($fh, $line);
         fclose($fh);
     }
 
+    public function logException(Exception $e): void
+    {
+        $this->createLogDirectory();
+        $this->addLine($this->createLogExceptionLine($e));
+    }
+
+    public function log(string $message, ?string $type = "message"): void {
+        $this->createLogDirectory();
+        $this->addLine($this->createLogMessageLine($message, $type));
+    }
+
+    private function createLogMessageLine(string $message, string $type) {
+        return sprintf("[%s][%s]%s", $type, date("Y-m-d H:i:s"), $message);
+    }
+
     private function createLogExceptionLine(Exception $e) {
-        return sprintf("[%s]%s(%d)\n%s(%s)\n%s\n\n", date("Y-m-d H:i:s"), $e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $this->formatExceptionTrace($e));
+        return sprintf("[EXCEPTION][%s]%s(%d)\n%s(%s)\n%s\n\n", date("Y-m-d H:i:s"), $e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $this->formatExceptionTrace($e));
     }
 }

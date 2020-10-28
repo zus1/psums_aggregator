@@ -42,12 +42,15 @@ class Request
         return $default;
     }
 
-    public function inputOrThrow(string $key) {
+    public function inputOrThrow(string $key, ?int $code=0) {
+        if($code === 0) {
+            $code = HttpCodes::HTTP_BAD_REQUEST;
+        }
         if(!isset($this->requestVars[$key])) {
-            throw new Exception("Field {$key} is missing");
+            throw new Exception("Field {$key} is missing", $code);
         }
         if(empty($this->requestVars[$key])) {
-            throw new Exception("Field {$key} can't be empty");
+            throw new Exception("Field {$key} can't be empty", $code);
         }
 
         return $this->requestVars[$key];

@@ -2,7 +2,7 @@
 
 class Factory
 {
-    const TYPE_USER = "user";
+    const TYPE_STREAM_CONTROLLER = "stream-controller";
     const TYPE_CONTROLLER = "controller";
     const TYPE_DATABASE = "database";
     const TYPE_HTML_PARSER = "htmlparser";
@@ -16,13 +16,18 @@ class Factory
     const TYPE_JSON_PARSER = "json-parser";
     const TYPE_DATE_HANDLER = "date-handler";
     const TYPE_EXCEPTION_HANDLER = "exception-handler";
+    const TYPE_SIGN = "sign";
+    const TYPE_STREAM = "stream";
 
     const EXTENDER_HTML_PARSER = "extender_html_parser";
     const EXCEPTION_HANDLER_EXTENDER = "extender-exception-handler";
 
     const MODEL_LOGGER_WEB = "model-logger-web";
     const MODEL_LOGGER_API = "model-logger-api";
+    const MODEL_LOGGER_STREAM = "model-logger-stream";
     const MODEL_LOGGER = "model-logger-default";
+    const MODEL_SIGN = "model-sign";
+    const MODEL_STREAM = "model-stream";
 
     const LOGGER_FILE = 'file';
     const LOGGER_DB = "db";
@@ -41,6 +46,9 @@ class Factory
         self::TYPE_JSON_PARSER => "getJsonParser",
         self::TYPE_DATE_HANDLER => "getDateHandler",
         self::TYPE_EXCEPTION_HANDLER => "getExceptionHandler",
+        self::TYPE_STREAM_CONTROLLER => "getStreamController",
+        self::TYPE_SIGN => "getSign",
+        self::TYPE_STREAM => "getStream",
     );
     const EXTENDER_METHOD_MAPPING = array(
         self::EXTENDER_HTML_PARSER => "getExtenderHtmlParser",
@@ -49,7 +57,10 @@ class Factory
     const MODEL_TO_METHOD_MAPPING = array(
         self::MODEL_LOGGER_WEB => "getModelLoggerWeb",
         self::MODEL_LOGGER_API => "getModelLoggerApi",
+        self::MODEL_LOGGER_STREAM => "getModelLoggerStream",
         self::MODEL_LOGGER => "getModelLogger",
+        self::MODEL_SIGN => "getModelSign",
+        self::MODEL_STREAM => "getModelStream",
     );
     const LIBRARY_TO_TYPE_MAPPING = array();
 
@@ -144,12 +155,36 @@ class Factory
         return call_user_func([new self(), self::LIBRARY_TO_TYPE_MAPPING[$libraryType]]);
     }
 
+    public function getModelLoggerStream() {
+        return new LoggerStreamModel($this->getValidator());
+    }
+
+    public function getStream() {
+        return new Stream($this->getValidator(), self::getLogger());
+    }
+
+    public function getModelStream() {
+        return new StreamModel($this->getValidator());
+    }
+
+    public function getSign() {
+        return new Sign();
+    }
+
+    public function getModelSign() {
+        return new SignModel($this->getValidator());
+    }
+
+    public function getStreamController() {
+        return new StreamController($this->getValidator(), $this->getRequest(), $this->getResponse(), $this->getSign(), $this->getStream());
+    }
+
     private function getExceptionHandler() {
         return new ExceptionHandler($this->getExtenderExceptionHandler(), self::getLogger());
     }
 
     private function getExtenderExceptionHandler() {
-        return new ExceptionHandlerExtender(self::getLogger());
+        return new ExceptionHandlerExtender(self::getLogger(), $this->getResponse());
     }
 
     private function getDbLogger() {
