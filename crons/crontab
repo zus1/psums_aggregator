@@ -1,0 +1,1 @@
+* * * * * /usr/local/bin/php -q /var/www/html/crons/compare.php >> /var/log/cron.log 2>&1
