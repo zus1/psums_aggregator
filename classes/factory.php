@@ -18,6 +18,9 @@ class Factory
     const TYPE_EXCEPTION_HANDLER = "exception-handler";
     const TYPE_SIGN = "sign";
     const TYPE_STREAM = "stream";
+    const TYPE_RULES_CONTROLLER = "rules-controller";
+    const TYPE_RULES = "rules";
+    const TYPE_RULES_RESULT = "rules-results";
 
     const EXTENDER_HTML_PARSER = "extender_html_parser";
     const EXCEPTION_HANDLER_EXTENDER = "extender-exception-handler";
@@ -28,6 +31,9 @@ class Factory
     const MODEL_LOGGER = "model-logger-default";
     const MODEL_SIGN = "model-sign";
     const MODEL_STREAM = "model-stream";
+    const MODEL_RULES = "model-rules";
+    const MODEL_RULES_RESULTS = "model-rule-results";
+    const MODEL_STREAM_RULES = "model-stream-rules";
 
     const LOGGER_FILE = 'file';
     const LOGGER_DB = "db";
@@ -49,6 +55,9 @@ class Factory
         self::TYPE_STREAM_CONTROLLER => "getStreamController",
         self::TYPE_SIGN => "getSign",
         self::TYPE_STREAM => "getStream",
+        self::TYPE_RULES_CONTROLLER => "getRulesController",
+        self::TYPE_RULES => "getRules",
+        self::TYPE_RULES_RESULT => "getRulesResults",
     );
     const EXTENDER_METHOD_MAPPING = array(
         self::EXTENDER_HTML_PARSER => "getExtenderHtmlParser",
@@ -61,6 +70,9 @@ class Factory
         self::MODEL_LOGGER => "getModelLogger",
         self::MODEL_SIGN => "getModelSign",
         self::MODEL_STREAM => "getModelStream",
+        self::MODEL_RULES => "getModelRules",
+        self::MODEL_RULES_RESULTS => "getModelRulesResults",
+        self::MODEL_STREAM_RULES => "getModelStreamRules",
     );
     const LIBRARY_TO_TYPE_MAPPING = array();
 
@@ -92,7 +104,7 @@ class Factory
     /**
      * @param string $type
      * @param bool $singleton
-     * @return BaseController|Database|HtmlParser|Router|Request|Validator|Response|Web|DateHandler
+     * @return BaseController|Database|HtmlParser|Router|Request|Validator|Response|Web|DateHandler|Stream|Rules|RulesController
      */
     public static function getObject(string $type, bool $singleton=false) {
         if(!array_key_exists($type, self::TYPE_METHOD_MAPPING)) {
@@ -155,27 +167,51 @@ class Factory
         return call_user_func([new self(), self::LIBRARY_TO_TYPE_MAPPING[$libraryType]]);
     }
 
-    public function getModelLoggerStream() {
+    private function getRules() {
+        return new Rules($this->getRulesResults());
+    }
+
+    private function getRulesResults() {
+        return new RulesResults();
+    }
+
+    private function getModelStreamRules() {
+        return new StreamRulesModel($this->getValidator());
+    }
+
+    private function getModelRulesResults() {
+        return new RulesResultsModel($this->getValidator());
+    }
+
+    private function getModelRules() {
+        return new RulesModel($this->getValidator());
+    }
+
+    private function getRulesController() {
+        return new RulesController($this->getValidator(), $this->getStream(), $this->getRules());
+    }
+
+    private function getModelLoggerStream() {
         return new LoggerStreamModel($this->getValidator());
     }
 
-    public function getStream() {
+    private function getStream() {
         return new Stream($this->getValidator(), self::getLogger());
     }
 
-    public function getModelStream() {
+    private function getModelStream() {
         return new StreamModel($this->getValidator());
     }
 
-    public function getSign() {
+    private function getSign() {
         return new Sign();
     }
 
-    public function getModelSign() {
+    private function getModelSign() {
         return new SignModel($this->getValidator());
     }
 
-    public function getStreamController() {
+    private function getStreamController() {
         return new StreamController($this->getValidator(), $this->getRequest(), $this->getResponse(), $this->getSign(), $this->getStream());
     }
 

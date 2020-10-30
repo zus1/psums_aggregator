@@ -62,4 +62,60 @@ class Stream
 
         return $formatted;
     }
+
+    public function getStreamsForCycle() {
+        $chunkSize = (int)Config::get(Config::STREAM_CHUNK_SIZE, 3);
+        $streams = $this->getModel()->select(array("stream_id", "stream"), array());
+        if(!$streams) {
+            throw new Exception("No streams available");
+        }
+        $chunkedStreams = array();
+        $lowestCount = null;
+        array_walk($streams, function ($value) use(&$chunkedStreams, $chunkSize, &$lowestCount) {
+            if(empty($value["stream"])) {
+                $stream = array();
+            } else {
+                $stream = json_decode($value["stream"], true);
+            }
+
+            $chunked = array_values(array_filter(array_chunk($stream, $chunkSize), function($value) use($chunkSize) {
+                return count($value) === $chunkSize;
+            }));
+
+            if(count($chunked) < $lowestCount || $lowestCount === null) {
+                $lowestCount = count($chunked);
+            }
+
+            $chunkedStreams[$value["stream_id"]] = array("original" => $stream, "chunked" => $chunked);
+        });
+
+        $chunkedStreams = $this->trimChunkedStreams($chunkedStreams, $lowestCount);
+        return $chunkedStreams;
+    }
+
+    private function trimChunkedStreams(array $streams, int $lowestCount) {
+        return array_map(function($stream) use($lowestCount) {
+            return array(
+                "original" => $stream["original"],
+                "chunked" => array_slice($stream["chunked"], 0, $lowestCount, true)
+            );
+        }, $streams);
+    }
+
+    public function removeUsedInCycle(array $streams) {
+        array_walk($streams, function ($orgChunk, $streamId) {
+            if(count($orgChunk["chunked"]) === 0) {
+                return;
+            }
+            $usedStr = "";
+            array_walk($orgChunk["chunked"], function($value) use(&$usedStr) {
+                $usedStr .= implode(",", $value) . ",";
+            });
+            $usedStr = substr($usedStr, 0, strlen($usedStr) - 1);
+            $used = explode(",", $usedStr);
+            $left = array_slice($orgChunk["original"], count($used));
+
+            $this->getModel()->update(array("stream" => json_encode($left, JSON_UNESCAPED_UNICODE)), array("stream_id" => $streamId));
+        });
+    }
 }

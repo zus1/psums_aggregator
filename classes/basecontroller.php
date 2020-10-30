@@ -21,6 +21,5 @@ class BaseController
 
     public function webRoot() {
         return json_encode(array("error" => 0, "message" => "ok"));
-        //Factory::getObject(Factory::TYPE_ROUTER)->redirect(HttpParser::baseUrl() . "views/documentation.php");
     }
 }
