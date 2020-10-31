@@ -13,7 +13,7 @@ final class InitRules extends AbstractMigration
             ['rule_name' => 'arrr_bacon', 'rule_description' => "Fuby as it sounds, this rule counts occurrences of arrr in first stream and bacon in second one, and compares them"],
             ['rule_name' => 'bacon_arrr', 'rule_description' => "Same as arrr_bacon, only reversed. So bacon in first stream and arrr in second"],
             ['rule_name' => 'pattern', 'rule_description' => "Uses provided patter to check occurrence of symbols in both streams, and compare", 'pattern' => '["lorem", "ipsum", "tipsum", "apsum", "dapsum"]'],
-            ['rule_name' => 'match_making', 'rule_description' => "Uses provided patter to check occurrence of symbols in both streams, and compare", 'pattern' => '["lorem-ipsum", "dapsum-tapsum", "epsim-mepsum", "ipsum-ipsum"]'],
+            ['rule_name' => 'match_making', 'rule_description' => "For all words pairs in pattern, checks both steams and tries to first word in first stream and second word in second stream", 'pattern' => '["lorem-ipsum", "dapsum-tapsum", "epsim-mepsum", "ipsum-ipsum"]'],
         ];
         $table->insert($rows)->save();
     }

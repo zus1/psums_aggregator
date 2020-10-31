@@ -5,7 +5,7 @@ services:
     build: .
     restart: always
     ports:
-      - '80:80'
+      - '8081:80'
     links:
       - db
       - memcached
@@ -35,5 +35,17 @@ services:
       - ../psums-streams:/var/www/html
     links:
       - aggregator
+      - db
+      - memcached
+  api:
+    container_name: psums_api
+    build:
+      context: ../psums-api
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    volumes:
+      - ../psums-api:/var/www/html
+    links:
       - db
       - memcached

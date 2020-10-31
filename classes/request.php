@@ -3,8 +3,6 @@
 class Request
 {
     private $requestVars = array();
-    private $cookieVars = array();
-    private static $_requestLoaded = false;
 
     public function __construct() {
         $payload = $this->getPayload();
@@ -29,14 +27,6 @@ class Request
     public function input($key, ?string $default="") {
         if(isset($this->requestVars[$key])) {
             return $this->requestVars[$key];
-        }
-
-        return $default;
-    }
-
-    public function cookie(string $key, ?string $default="") {
-        if(isset($this->cookieVars[$key])) {
-            return $this->cookieVars[$key];
         }
 
         return $default;
@@ -77,48 +67,7 @@ class Request
         return $_SERVER["REMOTE_ADDR"];
     }
 
-    public function file($key) {
-        $file = null;
-        if(!empty($_FILES) && isset($_FILES[$key])) {
-            $file = $_FILES[$key];
-        }
-
-        if(is_null($file)) {
-            return array();
-        }
-
-        if(!is_array($file['name'])) {
-            if($file["error"] === UPLOAD_ERR_NO_FILE ) {
-                return array();
-            }
-            return $file;
-        }
-
-        //TODO handle dealing with multiple file uploads
-        return array();
-    }
-
     public function getParsedRequestUrl() {
         return parse_url(strtolower($_SERVER["REQUEST_URI"]));
-    }
-
-    public function getParsedRequestQuery(array $output) {
-        $parsedUrl = $this->getParsedRequestUrl();
-        if(!$parsedUrl || !isset($parsedUrl["query"])) {
-            return $output;
-        }
-
-         parse_str($parsedUrl["query"], $output);
-
-        return $output;
-    }
-
-    public function getRequestPath() {
-        $parsedUrl = $this->getParsedRequestUrl();
-        if(!$parsedUrl || !isset($parsedUrl["path"])) {
-            return "";
-        }
-
-        return $parsedUrl["path"];
     }
 }

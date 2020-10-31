@@ -87,14 +87,14 @@ class RulesResults
         if($lower <= 0) {
             $lower = 1;
         }
-        $perc = (int)$existing['results']["total_first_stream"]/$lower;
+        $perc = (float)number_format((int)$existing['results']["total_first_stream"]/$lower, 2);
         $existing['results']["percentage"] = (float)$perc;
 
         return $existing;
     }
 
     private function handleMatchMakingResult(array $existing, array $toAdd) {
-        $existing["results"]["total"] = (int)$existing["results"]["total"] + (int)$toAdd["total"];
+        $existing["results"]["total_matches"] = (int)$existing["results"]["total_matches"] + (int)$toAdd["total_matches"];
 
         return $existing;
     }

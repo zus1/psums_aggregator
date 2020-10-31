@@ -10,8 +10,6 @@ class Factory
     const TYPE_REQUEST = 'request';
     const TYPE_VALIDATOR = 'validator';
     const TYPE_RESPONSE = "response";
-    const TYPE_JSON_PARSER = "json-parser";
-    const TYPE_DATE_HANDLER = "date-handler";
     const TYPE_EXCEPTION_HANDLER = "exception-handler";
     const TYPE_SIGN = "sign";
     const TYPE_STREAM = "stream";
@@ -40,8 +38,6 @@ class Factory
         self::TYPE_REQUEST => 'getRequest',
         self::TYPE_VALIDATOR => 'getValidator',
         self::TYPE_RESPONSE => "getResponse",
-        self::TYPE_JSON_PARSER => "getJsonParser",
-        self::TYPE_DATE_HANDLER => "getDateHandler",
         self::TYPE_EXCEPTION_HANDLER => "getExceptionHandler",
         self::TYPE_STREAM_CONTROLLER => "getStreamController",
         self::TYPE_SIGN => "getSign",
@@ -92,7 +88,7 @@ class Factory
     /**
      * @param string $type
      * @param bool $singleton
-     * @return Database|Router|Request|Validator|Response|DateHandler|Stream|Rules|RulesController
+     * @return Database|Router|Request|Validator|Response|Stream|Rules|RulesController
      */
     public static function getObject(string $type, bool $singleton=false) {
         if(!array_key_exists($type, self::TYPE_METHOD_MAPPING)) {
@@ -249,9 +245,5 @@ class Factory
 
     private function getResponse() {
         return new Response($this->getRequest());
-    }
-
-    public function getDateHandler() {
-        return new DateHandler();
     }
 }

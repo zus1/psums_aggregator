@@ -53,7 +53,7 @@ class Stream
         $formatted = array();
         array_walk($array, function ($value) use(&$formatted) {
            if($value !== "") {
-               if($this->validator->validate("stream", array(Validator::FILTER_ALPHA_NUM), $value)->isFailed()) {
+               if($this->validator->validate("stream", array(Validator::FILTER_ALPHA_NUM_PLUS), $value)->isFailed()) {
                    throw new Exception("Invalid word in input stream: " . $value, HttpCodes::HTTP_BAD_REQUEST);
                }
                $formatted[] = strtolower(trim($value));

@@ -72,8 +72,8 @@ class Rules
             $wa1 = str_split($streamOne[$i]);
             $wa2 = str_split($streamTwo[$i]);
 
-            $v1 = array_values(array_intersect($streamOne[$i], $wa1));
-            $v2 = array_values(array_intersect($streamTwo[$i], $wa2));
+            $v1 = array_values(array_intersect($vowels, $wa1));
+            $v2 = array_values(array_intersect($vowels, $wa2));
             $streamOneCount += count($v1);
             $streamTwoCount += count($v2);
         }
@@ -82,8 +82,8 @@ class Rules
     }
 
     private function applyArrrBacon(array $streamOne, array $streamTwo) {
-        $phrase1 = "arrr";
-        $phrase2 = "bacon";
+        $phrase1 = "pook";
+        $phrase2 = "beef";
 
         $wordsInStream = count($streamOne);
         $streamOneCount = 0;
@@ -123,6 +123,6 @@ class Rules
             }
         }
 
-        return array("total" => $total);
+        return array("total_matches" => $total);
     }
 }
