@@ -13,6 +13,8 @@ final class InitStreamsRules extends AbstractMigration
             ['first_stream' => "d34tz671", 'second_stream' => "2a3b5c7d", 'rule_id' => 3],
             ['first_stream' => "1a2b3c4d", 'second_stream' => "1db56725", 'rule_id' => 4],
             ['first_stream' => "1a2b3c4d", 'second_stream' => "2a3b5c7d", 'rule_id' => 5],
+            ['first_stream' => "1a2b3c4d", 'second_stream' => "1db56725", 'rule_id' => 1],
+            ['first_stream' => "d34tz671", 'second_stream' => "2a3b5c7d", 'rule_id' => 1],
         ];
         $table->insert($rows)->save();
     }
