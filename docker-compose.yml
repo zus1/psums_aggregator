@@ -1,13 +1,14 @@
 version: '3'
 services:
-  web:
+  aggregator:
     container_name: psums_aggregator
     build: .
     restart: always
     ports:
-      - '80:80'
+      - '8081:80'
     links:
       - db
+      - memcached
     volumes:
       - .:/var/www/html
   db:
@@ -20,4 +21,31 @@ services:
       MYSQL_DATABASE: "${DB_NAME}"
       MYSQL_USER: "${DB_USERNAME}"
       MYSQL_PASSWORD: "${DB_PASSWORD}"
-
+  memcached:
+    container_name: psums_memcached
+    image: memcached
+    ports:
+      - '11211:11211'
+  streams:
+    container_name: psums_streams
+    build: ../psums-streams
+    ports:
+      - '8080:80'
+    volumes:
+      - ../psums-streams:/var/www/html
+    links:
+      - aggregator
+      - db
+      - memcached
+  api:
+    container_name: psums_api
+    build:
+      context: ../psums-api
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    volumes:
+      - ../psums-api:/var/www/html
+    links:
+      - db
+      - memcached

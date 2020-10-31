@@ -12,36 +12,35 @@ class Router
         $this->eHandler = $eHandler;
     }
 
-    public function routeMapping() {
+    public function streamRouteMapping() {
         return array(
-            '/' => array('class' => Factory::TYPE_CONTROLLER, 'method' => 'webRoot', 'request' => self::REQUEST_GET),
+            '/' => array('class' => Factory::TYPE_BASE_CONTROLLER, 'method' => 'webRoot', 'request' => self::REQUEST_GET), //in case somebody hits root
+            '/stream/input' => array('class' => Factory::TYPE_STREAM_CONTROLLER, 'method' => 'inputStream', 'request' => self::REQUEST_POST),
         );
     }
 
-    public function route() {
+    public function routeStream() {
         $requestUri = explode("?", strtolower($_SERVER["REQUEST_URI"]))[0];
         $requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
-        $routes = $this->routeMapping();
+        $routes = $this->streamRouteMapping();
 
-        $route = array();
         try {
             $route = $this->validateRequest($requestUri, $routes, $requestMethod);
         } catch(Exception $e) {
-            $this->eHandler->handle($e, "web");
+            $this->eHandler->handle($e, "stream");
         }
 
         $classObject = Factory::getObject($route['class']);
         try {
             $this->validateClassMethod($classObject, $route['method']);
         } catch(Exception $e) {
-            $this->eHandler->handle($e, "web");
+            $this->eHandler->handle($e, "stream");
         }
 
-        $result = "";
         try {
             $result = call_user_func([$classObject, $route['method']]);
         } catch(Exception $e) {
-            $this->eHandler->handle($e, "web");
+            $this->eHandler->handle($e, "stream");
         }
 
         $this->returnResult($result);

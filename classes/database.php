@@ -32,6 +32,15 @@ class Database
         }
     }
 
+    public function getSetting(string $settingName, ?string $default="") {
+        $setting = $this->select("SELECT value FROM settings WHERE name = ?", array("string"), array($settingName));
+        if(!$setting) {
+            return $default;
+        }
+
+        return $setting[0]["value"];
+    }
+
     public function beginTransaction() {
         if(!$this->pdo->inTransaction()) {
             $this->pdo->beginTransaction();

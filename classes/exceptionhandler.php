@@ -3,7 +3,7 @@
 
 class ExceptionHandler
 {
-    const EXCEPTION_DEFAULT = "default";
+    const EXCEPTION_DEFAULT = "stream";
 
     private $extender;
     private $logger;
@@ -46,6 +46,5 @@ class ExceptionHandler
 
     private function handleException(Exception $e) {
         $this->logger->logException($e);
-        Factory::getObject(Factory::TYPE_ROUTER)->redirect(HttpParser::baseUrl() . "views/error.php?error=" . $e->getMessage() . "&code=" . $e->getCode(), $e->getCode());
     }
 }

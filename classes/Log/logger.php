@@ -5,10 +5,13 @@ class Logger implements LoggerInterface
 {
     const LOGGER_API = "api";
     const LOGGER_WEB = "web";
+    const LOGGER_STREAM = "stream";
     const LOGGER_DEFAULT = "log";
 
     protected $type = "log";
-    protected $availableTypes = array(self::LOGGER_API, self::LOGGER_WEB);
+    protected $availableTypes = array(self::LOGGER_API, self::LOGGER_WEB, self::LOGGER_STREAM);
+
+    protected $excludedExceptions = array("Aggregator on timeout");
 
     public function setType(string $type) {
         if(!in_array($type, $this->availableTypes)) {
@@ -24,6 +27,10 @@ class Logger implements LoggerInterface
     }
 
     public function logException(Exception $e) : void {
+        throw new Exception("If you are here, something is wrong", HttpCodes::INTERNAL_SERVER_ERROR); //needs to be overriden in child class
+    }
+
+    public function log(string $message, ?string $type = "message"): void {
         throw new Exception("If you are here, something is wrong", HttpCodes::INTERNAL_SERVER_ERROR); //needs to be overriden in child class
     }
 
