@@ -3,16 +3,13 @@
 class Factory
 {
     const TYPE_STREAM_CONTROLLER = "stream-controller";
-    const TYPE_CONTROLLER = "controller";
+    const TYPE_BASE_CONTROLLER = "controller";
     const TYPE_DATABASE = "database";
-    const TYPE_HTML_PARSER = "htmlparser";
     const TYPE_ROUTER = "router";
     const TYPE_HTTP_PARSER = "httpparser";
     const TYPE_REQUEST = 'request';
     const TYPE_VALIDATOR = 'validator';
     const TYPE_RESPONSE = "response";
-    const TYPE_CMS = "cms";
-    const TYPE_WEB = "web";
     const TYPE_JSON_PARSER = "json-parser";
     const TYPE_DATE_HANDLER = "date-handler";
     const TYPE_EXCEPTION_HANDLER = "exception-handler";
@@ -22,11 +19,8 @@ class Factory
     const TYPE_RULES = "rules";
     const TYPE_RULES_RESULT = "rules-results";
 
-    const EXTENDER_HTML_PARSER = "extender_html_parser";
     const EXCEPTION_HANDLER_EXTENDER = "extender-exception-handler";
 
-    const MODEL_LOGGER_WEB = "model-logger-web";
-    const MODEL_LOGGER_API = "model-logger-api";
     const MODEL_LOGGER_STREAM = "model-logger-stream";
     const MODEL_LOGGER = "model-logger-default";
     const MODEL_SIGN = "model-sign";
@@ -39,16 +33,13 @@ class Factory
     const LOGGER_DB = "db";
 
     const TYPE_METHOD_MAPPING = array(
-        self::TYPE_CONTROLLER => "getController",
+        self::TYPE_BASE_CONTROLLER => "getBaseController",
         self::TYPE_DATABASE => "getDatabase",
-        self::TYPE_HTML_PARSER => "getHtmlParser",
         self::TYPE_ROUTER => "getRouter",
         self::TYPE_HTTP_PARSER => "getHttpParser",
         self::TYPE_REQUEST => 'getRequest',
         self::TYPE_VALIDATOR => 'getValidator',
         self::TYPE_RESPONSE => "getResponse",
-        self::TYPE_CMS => "getCms",
-        self::TYPE_WEB => "getWeb",
         self::TYPE_JSON_PARSER => "getJsonParser",
         self::TYPE_DATE_HANDLER => "getDateHandler",
         self::TYPE_EXCEPTION_HANDLER => "getExceptionHandler",
@@ -60,12 +51,9 @@ class Factory
         self::TYPE_RULES_RESULT => "getRulesResults",
     );
     const EXTENDER_METHOD_MAPPING = array(
-        self::EXTENDER_HTML_PARSER => "getExtenderHtmlParser",
         self::EXCEPTION_HANDLER_EXTENDER => "getExtenderExceptionHandler",
     );
     const MODEL_TO_METHOD_MAPPING = array(
-        self::MODEL_LOGGER_WEB => "getModelLoggerWeb",
-        self::MODEL_LOGGER_API => "getModelLoggerApi",
         self::MODEL_LOGGER_STREAM => "getModelLoggerStream",
         self::MODEL_LOGGER => "getModelLogger",
         self::MODEL_SIGN => "getModelSign",
@@ -104,7 +92,7 @@ class Factory
     /**
      * @param string $type
      * @param bool $singleton
-     * @return BaseController|Database|HtmlParser|Router|Request|Validator|Response|Web|DateHandler|Stream|Rules|RulesController
+     * @return Database|Router|Request|Validator|Response|DateHandler|Stream|Rules|RulesController
      */
     public static function getObject(string $type, bool $singleton=false) {
         if(!array_key_exists($type, self::TYPE_METHOD_MAPPING)) {
@@ -125,7 +113,7 @@ class Factory
 
     /**
      * @param string $extenderType
-     * @return HtmlParserExtender|ExceptionHandlerExtender
+     * @return ExceptionHandlerExtender
      */
     public static function getExtender(string $extenderType) {
         if(!array_key_exists($extenderType, self::EXTENDER_METHOD_MAPPING)) {
@@ -141,7 +129,7 @@ class Factory
 
     /**
      * @param string $modelType
-     * @return LoggerWebModel|LoggerApiModel
+     * @return StreamRulesModel|RulesModel
      */
     public static function getModel(string $modelType) {
         if(!array_key_exists($modelType, self::MODEL_TO_METHOD_MAPPING)) {
@@ -167,6 +155,10 @@ class Factory
         return call_user_func([new self(), self::LIBRARY_TO_TYPE_MAPPING[$libraryType]]);
     }
 
+    private function getBaseController() {
+        return new BaseController($this->getResponse());
+    }
+
     private function getRules() {
         return new Rules($this->getRulesResults());
     }
@@ -188,7 +180,7 @@ class Factory
     }
 
     private function getRulesController() {
-        return new RulesController($this->getValidator(), $this->getStream(), $this->getRules());
+        return new RulesController($this->getValidator(), $this->getStream(), $this->getRules(), self::getLogger());
     }
 
     private function getModelLoggerStream() {
@@ -231,28 +223,12 @@ class Factory
         return new LoggerFile();
     }
 
-    private function getModelLoggerWeb() {
-        return new LoggerWebModel($this->getValidator());
-    }
-
-    private function getModelLoggerApi() {
-        return new LoggerApiModel($this->getValidator());
-    }
-
     private function getModelLogger() {
         return new LoggerModel($this->getValidator());
     }
 
-    private function getController() {
-        return new BaseController($this->getRequest(), $this->getHtmlParser(), $this->getValidator(), $this->getResponse(), $this->getCms(), $this->getWeb());
-    }
-
     private function getDatabase() {
         return new Database();
-    }
-
-    private function getHtmlParser() {
-        return new HtmlParser($this->getRequest(), $this->getExtenderHtmlParser());
     }
 
     private function getRouter() {
@@ -268,27 +244,11 @@ class Factory
     }
 
     private function getValidator() {
-        return new Validator($this->getRequest(), $this->getHtmlParser());
+        return new Validator($this->getRequest());
     }
 
     private function getResponse() {
-        return new Response($this->getHtmlParser(), $this->getRequest());
-    }
-
-    private function getCms() {
-        return new Cms($this->getValidator());
-    }
-
-    private function getWeb() {
-        return new Web($this->getCms());
-    }
-
-    private function getExtenderHtmlParser() {
-        return new HtmlParserExtender();
-    }
-
-    private function getJsonParser() {
-        return new JsonParser();
+        return new Response($this->getRequest());
     }
 
     public function getDateHandler() {

@@ -1,6 +1,6 @@
 version: '3'
 services:
-  web:
+  aggregator:
     container_name: psums_aggregator
     build: .
     restart: always
@@ -26,3 +26,14 @@ services:
     image: memcached
     ports:
       - '11211:11211'
+  streams:
+    container_name: psums_streams
+    build: ../psums-streams
+    ports:
+      - '8080:80'
+    volumes:
+      - ../psums-streams:/var/www/html
+    links:
+      - aggregator
+      - db
+      - memcached

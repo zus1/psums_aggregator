@@ -11,6 +11,8 @@ class Logger implements LoggerInterface
     protected $type = "log";
     protected $availableTypes = array(self::LOGGER_API, self::LOGGER_WEB, self::LOGGER_STREAM);
 
+    protected $excludedExceptions = array("Aggregator on timeout");
+
     public function setType(string $type) {
         if(!in_array($type, $this->availableTypes)) {
             throw new Exception("Logger not supported");

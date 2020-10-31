@@ -46,7 +46,7 @@ class Stream
 
     private function getStreamArray(string $inputStream) {
         //first lets replace every symbol that is not latter, and lets have uniform brakes for later on
-        $inputStream = preg_replace("/[!?_,;:.]/", " ", $inputStream);
+        $inputStream = preg_replace("/[!?_,;:.\-]/", " ", $inputStream);
         //now we get array from input string
         $array = preg_split("/(\r\n|\n|\r| )/", $inputStream);
         //now lets validate and format input array
@@ -64,7 +64,7 @@ class Stream
     }
 
     public function getStreamsForCycle() {
-        $chunkSize = (int)Config::get(Config::STREAM_CHUNK_SIZE, 3);
+        $chunkSize = (int)Factory::getObject(Factory::TYPE_DATABASE, true)->getSetting("aggregator_chunk_size", 5);
         $streams = $this->getModel()->select(array("stream_id", "stream"), array());
         if(!$streams) {
             throw new Exception("No streams available");

@@ -13,8 +13,6 @@ class LoggerFile extends Logger implements LoggerInterface
     public function getLoggerSettings(string $type): array
     {
         return array(
-            self::LOGGER_WEB => array("file" => $this->rootDirectory . "web.log"),
-            self::LOGGER_API => array("file" => $this->rootDirectory . "api.log"),
             self::LOGGER_STREAM => array("file" => $this->rootDirectory . "stream.log"),
             self::LOGGER_DEFAULT => array("file" => $this->rootDirectory . "log.log"),
         )[$type];
@@ -46,6 +44,9 @@ class LoggerFile extends Logger implements LoggerInterface
 
     public function logException(Exception $e): void
     {
+        if(in_array($e->getMessage(), $this->excludedExceptions)) {
+            return;
+        }
         $this->createLogDirectory();
         $this->addLine($this->createLogExceptionLine($e));
     }

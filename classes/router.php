@@ -12,68 +12,15 @@ class Router
         $this->eHandler = $eHandler;
     }
 
-    public function routeAll() {
-        $requestUri = explode("?", strtolower($_SERVER["REQUEST_URI"]))[0];
-        if(in_array($requestUri, $this->webRoutes())) {
-            $this->route($requestUri);
-        } elseif(in_array($requestUri, $this->streamRoutes())) {
-            $this->routeStream($requestUri);
-        }
-    }
-
-    public function webRoutes() {
-        return array(
-            '/',
-        );
-    }
-
-    public function streamRoutes() {
-        return array(
-            '/stream/input',
-        );
-    }
-
-    public function routeMapping() {
-        return array(
-            '/' => array('class' => Factory::TYPE_CONTROLLER, 'method' => 'webRoot', 'request' => self::REQUEST_GET),
-        );
-    }
-
     public function streamRouteMapping() {
         return array(
+            '/' => array('class' => Factory::TYPE_BASE_CONTROLLER, 'method' => 'webRoot', 'request' => self::REQUEST_GET), //in case somebody hits root
             '/stream/input' => array('class' => Factory::TYPE_STREAM_CONTROLLER, 'method' => 'inputStream', 'request' => self::REQUEST_POST),
         );
     }
 
-    public function route(string $requestUri) {
-        $requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
-        $routes = $this->routeMapping();
-
-        $route = array();
-        try {
-            $route = $this->validateRequest($requestUri, $routes, $requestMethod);
-        } catch(Exception $e) {
-            $this->eHandler->handle($e, "web");
-        }
-
-        $classObject = Factory::getObject($route['class']);
-        try {
-            $this->validateClassMethod($classObject, $route['method']);
-        } catch(Exception $e) {
-            $this->eHandler->handle($e, "web");
-        }
-
-        $result = "";
-        try {
-            $result = call_user_func([$classObject, $route['method']]);
-        } catch(Exception $e) {
-            $this->eHandler->handle($e, "web");
-        }
-
-        $this->returnResult($result);
-    }
-
-    public function routeStream($requestUri) {
+    public function routeStream() {
+        $requestUri = explode("?", strtolower($_SERVER["REQUEST_URI"]))[0];
         $requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
         $routes = $this->streamRouteMapping();
 

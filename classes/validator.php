@@ -19,11 +19,9 @@ class Validator
     private $messages = array();
 
     private $request;
-    private $htmlParser;
 
-    public function __construct(Request $request, HtmlParser $htmlParser) {
+    public function __construct(Request $request) {
         $this->request = $request;
-        $this->htmlParser = $htmlParser;
     }
 
     protected function getValidFilters() {
@@ -122,16 +120,6 @@ class Validator
         return array_filter($this->messages, function($value) {
             return $value !== "ok";
         });
-    }
-
-    public function getFormattedErrorMessagesForDisplay(?array $errorMessages=array()) {
-        if(empty($errorMessages)) {
-            $errorMessages = $this->getErrorMessages();
-        }
-        if(!empty($errorMessages)) {
-            return $this->htmlParser->formatValidatorErrorMessages($errorMessages);
-        }
-        return "";
     }
 
     public function isFailed() {

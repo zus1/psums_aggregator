@@ -9,10 +9,10 @@ final class InitStreams extends AbstractMigration
     {
         $table = $this->table("stream");
         $rows = [
-            ['stream_id' => "1a2b3c4d"],
-            ['stream_id' => "2a3b5c7d"],
-            ['stream_id' => "d34tz671"],
-            ['stream_id' => "1db56725"],
+            ['stream_id' => "1a2b3c4d", "name" => "asdfast"],
+            ['stream_id' => "2a3b5c7d", "name" => "baconipsum"],
+            ['stream_id' => "d34tz671", "name" => "hipsum"],
+            ['stream_id' => "1db56725", "name" => "metaphorpsum"],
         ];
         $table->insert($rows)->save();
     }
