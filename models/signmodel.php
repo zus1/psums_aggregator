@@ -1,5 +1,6 @@
 <?php
 
+namespace PsumsAggregator\Models;
 
 class SignModel  extends Model
 {

@@ -1,6 +1,16 @@
 <?php
 
+namespace PsumsAggregator\Classes;
 
+use Exception;
+
+/**
+ * Class RulesResults
+ * @package PsumsAggregator\Classes
+ *
+ * Class that will handle results after applied rules
+ *
+ */
 class RulesResults
 {
     private $results = array();

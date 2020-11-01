@@ -1,6 +1,22 @@
 <?php
 
+namespace PsumsAggregator\Classes\Controllers;
 
+use Exception;
+use PsumsAggregator\Classes\HttpCodes;
+use PsumsAggregator\Classes\Request;
+use PsumsAggregator\Classes\Response;
+use PsumsAggregator\Classes\Sign;
+use PsumsAggregator\Classes\Stream;
+use PsumsAggregator\Classes\Validator;
+
+/**
+ * Class StreamController
+ * @package PsumsAggregator\Classes\Controllers
+ *
+ * Used as front controller for handling input streams
+ *
+ */
 class StreamController
 {
     private $validator;
@@ -17,6 +33,14 @@ class StreamController
         $this->stream = $stream;
     }
 
+    /**
+     *
+     * Adds new words to stored stream, from input streams
+     * Vill validate input streams
+     *
+     * @return string
+     * @throws Exception
+     */
     public function inputStream() {
         $streamId = $this->request->inputOrThrow("id");
         $sing = $this->request->inputOrThrow("sign");

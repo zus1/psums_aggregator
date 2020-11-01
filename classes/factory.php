@@ -1,5 +1,31 @@
 <?php
 
+namespace PsumsAggregator\Classes;
+
+use PsumsAggregator\Classes\Controllers\BaseController;
+use PsumsAggregator\Classes\Controllers\RulesController;
+use PsumsAggregator\Classes\Controllers\StreamController;
+use PsumsAggregator\Classes\Log\LoggerDb;
+use PsumsAggregator\Classes\Log\LoggerFile;
+use PsumsAggregator\Config\Config;
+use PsumsAggregator\Extenders\ExceptionHandlerExtender;
+use PsumsAggregator\Models\LoggerModel;
+use PsumsAggregator\Models\LoggerStreamModel;
+use PsumsAggregator\Models\RulesModel;
+use PsumsAggregator\Models\RulesResultsModel;
+use PsumsAggregator\Models\SignModel;
+use PsumsAggregator\Models\StreamModel;
+use PsumsAggregator\Models\StreamRulesModel;
+use Exception;
+
+/**
+ * Class Factory
+ * @package PsumsAggregator\Classes
+ *
+ * Main container for generating object and handling dependency injection.
+ * Can return Objects, Extenders, Models and Libraries
+ *
+ */
 class Factory
 {
     const TYPE_STREAM_CONTROLLER = "stream-controller";
@@ -69,6 +95,7 @@ class Factory
     /**
      * @param string|null $type
      * @return LoggerFile|LoggerDb
+     * @throws Exception
      */
     public static function getLogger(?string $type="") {
         if($type === "") {
@@ -86,6 +113,9 @@ class Factory
     }
 
     /**
+     *
+     * Pass true for singleton
+     *
      * @param string $type
      * @param bool $singleton
      * @return Database|Router|Request|Validator|Response|Stream|Rules|RulesController
@@ -108,6 +138,9 @@ class Factory
     }
 
     /**
+     *
+     * Always singleton
+     *
      * @param string $extenderType
      * @return ExceptionHandlerExtender
      */
@@ -124,6 +157,9 @@ class Factory
     }
 
     /**
+     *
+     * Always singleton
+     *
      * @param string $modelType
      * @return StreamRulesModel|RulesModel
      */
@@ -140,6 +176,9 @@ class Factory
     }
 
     /**
+     *
+     * Used for including external libraries added to project (like Phinx or Mailer)
+     *
      * @param string $libraryType
      * @return object
      */

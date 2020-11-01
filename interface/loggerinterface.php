@@ -1,5 +1,8 @@
 <?php
 
+namespace PsumsAggregator\Interfaces;
+
+use Exception;
 
 interface LoggerInterface
 {

@@ -1,6 +1,19 @@
 <?php
 
+namespace PsumsAggregator\Classes;
 
+use Exception;
+use PsumsAggregator\Extenders\ExceptionHandlerExtender;
+use PsumsAggregator\Interfaces\LoggerInterface;
+
+/**
+ * Class ExceptionHandler
+ * @package PsumsAggregator\Classes
+ *
+ * Class for handling project exceptions.
+ * Can be extended by using PsumsAggregator\Extenders\ExceptionHandlerExtender
+ *
+ */
 class ExceptionHandler
 {
     const EXCEPTION_DEFAULT = "stream";
@@ -13,6 +26,13 @@ class ExceptionHandler
         $this->logger = $logger;
     }
 
+    /**
+     *
+     * Return method to use, depending on exception type
+     * Extendable with PsumsAggregator\Extenders\ExceptionHandlerExtender
+     *
+     * @return array
+     */
     private function getTypeTOHandlerMapping() {
         $defaultMapping = array(
             self::EXCEPTION_DEFAULT => "handleException",
@@ -22,6 +42,16 @@ class ExceptionHandler
         return array_merge($defaultMapping, $extended);
     }
 
+    /**
+     *
+     * Calls handling method depending on type parameter
+     *
+     * @param Exception $e
+     * @param string|null $type
+     * @param bool $return
+     * @return mixed|null
+     * @throws Exception
+     */
     public function handle(Exception $e, ?string $type="", $return=false) {
         if($type === "") {
             $type = self::EXCEPTION_DEFAULT;
@@ -44,6 +74,12 @@ class ExceptionHandler
         return null;
     }
 
+    /**
+     *
+     * Default fallback if no type supplied
+     *
+     * @param Exception $e
+     */
     private function handleException(Exception $e) {
         $this->logger->logException($e);
     }

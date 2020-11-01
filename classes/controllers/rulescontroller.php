@@ -1,6 +1,22 @@
 <?php
 
+namespace PsumsAggregator\Classes\Controllers;
 
+use Exception;
+use PsumsAggregator\Classes\Cache;
+use PsumsAggregator\Classes\Factory;
+use PsumsAggregator\Classes\Rules;
+use PsumsAggregator\Classes\Stream;
+use PsumsAggregator\Classes\Validator;
+use PsumsAggregator\Interfaces\LoggerInterface;
+
+/**
+ * Class RulesController
+ * @package PsumsAggregator\Classes\Controllers
+ *
+ * Used as front controller for cycling rules
+ *
+ */
 class RulesController
 {
     private $validator;
@@ -15,6 +31,14 @@ class RulesController
         $this->logger = $logger;
     }
 
+    /**
+     *
+     * Cycle the rules.
+     * First fetches all streams and the applies rules on each one
+     * Last it removes used word form stream
+     *
+     * @return string
+     */
     public function rulesCycle() {
         try {
             $this->checkShouldCycleRun();
@@ -29,6 +53,12 @@ class RulesController
         return "ok" . PHP_EOL;
     }
 
+    /**
+     *
+     * Checks if aggregator is deactivated or on timeout
+     *
+     * @throws Exception
+     */
     private function checkShouldCycleRun() {
         $db = Factory::getObject(Factory::TYPE_DATABASE, true);
         $delay = (int)$db->getSetting("aggregator_delay_min", 5) * 60;

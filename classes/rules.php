@@ -1,6 +1,17 @@
 <?php
 
+namespace PsumsAggregator\Classes;
 
+use Exception;
+
+/**
+ * Class Rules
+ * @package PsumsAggregator\Classes
+ *
+ * Class that will handle applying rules to input streams
+ * Can be extended by adding new rules logic and new rules to db available_rules table
+ *
+ */
 class Rules
 {
     private $results;
@@ -19,6 +30,12 @@ class Rules
         return Factory::getModel(Factory::MODEL_STREAM_RULES);
     }
 
+    /**
+     *
+     * Returns rule apply method, depending ony rule name
+     *
+     * @return array
+     */
     private function getRuleToMethodMapping() {
         return array(
             'compare_vowels' => "applyCompareVowels",
@@ -29,6 +46,15 @@ class Rules
         );
     }
 
+    /**
+     *
+     * Applies all applicable rules to word chunks (chunked stream)
+     * Will look for corresponding word in second stream (aka 1 => 1, 2 => 2 ...)
+     * Sends result to PsumsAggregator\Classes\RulesResults
+     *
+     * @param array $packedStreams
+     * @throws Exception
+     */
     public function applyRules(array $packedStreams) {
         foreach($packedStreams as $streamId => $streamChunks) {
             $rules = Factory::getObject(Factory::TYPE_DATABASE, true)->select(
@@ -64,6 +90,15 @@ class Rules
         $this->results->applyResults();
     }
 
+    /**
+     *
+     * Looks for number of vowels in both streams and returns counts
+     *
+     * @param array $streamOne
+     * @param array $streamTwo
+     * @param array $vowels
+     * @return array
+     */
     private function applyCompareVowels(array $streamOne, array $streamTwo, array $vowels) {
         $wordsInStream = count($streamOne);
         $streamOneCount = 0;
@@ -81,6 +116,15 @@ class Rules
         return array("total_first_stream" => $streamOneCount, "total_second_stream" => $streamTwoCount);
     }
 
+    /**
+     *
+     * Looks for specified word in both streams and returns counts
+     * Looks for first word in first stream and second word in second stream
+     *
+     * @param array $streamOne
+     * @param array $streamTwo
+     * @return array
+     */
     private function applyArrrBacon(array $streamOne, array $streamTwo) {
         $phrase1 = "pook";
         $phrase2 = "beef";
@@ -100,10 +144,28 @@ class Rules
         return array("total_first_stream" => $streamOneCount, "total_second_stream" => $streamTwoCount);
     }
 
+    /**
+     *
+     * Same as ArrBacon but reversed
+     *
+     * @param array $streamOne
+     * @param array $streamTwo
+     * @return array
+     */
     private function applyBaconArrr(array $streamOne, array $streamTwo) {
-        return $this->applyArrrBacon($streamOne, $streamTwo); //this streams are reverse
+        return $this->applyArrrBacon($streamTwo, $streamOne); //this streams are reverse
     }
 
+    /**
+     *
+     * Looks for matches for both streams, and supplied pattern
+     * Patter is stored in database
+     *
+     * @param array $streamOne
+     * @param array $streamTwo
+     * @param array $pattern
+     * @return array
+     */
     private function applyPattern(array $streamOne, array $streamTwo, array $pattern) {
         $r1 = array_values(array_intersect($streamOne, $pattern));
         $r2 = array_values(array_intersect($streamTwo, $pattern));
@@ -111,6 +173,17 @@ class Rules
         return array("total_first_stream" => count($r1), "total_second_stream" => count($r2));
     }
 
+    /**
+     *
+     * Takes provided pattern of word pairs (word1-word2)
+     * Looks for word1 in first stream and word2 in second
+     * Counts total matches
+     *
+     * @param array $streamOne
+     * @param array $streamTwo
+     * @param array $duplets
+     * @return array
+     */
     private function applyMatchMaking(array $streamOne, array $streamTwo, array $duplets) {
         $total = 0;
         foreach($duplets as $duplet) {

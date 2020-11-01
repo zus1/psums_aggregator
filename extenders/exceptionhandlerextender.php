@@ -1,5 +1,12 @@
 <?php
 
+namespace PsumsAggregator\Extenders;
+
+use Exception;
+use PsumsAggregator\Classes\Log\Logger;
+use PsumsAggregator\Classes\Response;
+use PsumsAggregator\Interfaces\LoggerInterface;
+
 class ExceptionHandlerExtender
 {
     private $logger;
@@ -10,6 +17,13 @@ class ExceptionHandlerExtender
         $this->response = $response;
     }
 
+    /**
+     *
+     * Extend basic type to method mapping for Classes\ExceptionHandler
+     * Mapped method also needs to be defined in this class
+     *
+     * @return array
+     */
     public function extend() {
         return array(
             "stream" => "handleStreamException",

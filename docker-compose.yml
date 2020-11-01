@@ -29,6 +29,7 @@ services:
   streams:
     container_name: psums_streams
     build: ../psums-streams
+    restart: always
     ports:
       - '8080:80'
     volumes:
@@ -42,6 +43,7 @@ services:
     build:
       context: ../psums-api
       dockerfile: Dockerfile
+    restart: always
     ports:
       - '80:80'
     volumes:

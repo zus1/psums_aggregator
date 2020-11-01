@@ -1,5 +1,19 @@
 <?php
 
+namespace PsumsAggregator\Classes;
+
+use PDO;
+use PDOException;
+use PsumsAggregator\Config\Config;
+
+/**
+ * Class Database
+ * @package PsumsAggregator\Classes
+ *
+ * Class for interacting with database. Uses PDO
+ * https://www.php.net/manual/en/book.pdo.php
+ *
+ */
 class Database
 {
     private $pdo = null;
@@ -14,6 +28,10 @@ class Database
         }
     }
 
+    /**
+     * Initializes connection to mysql database.
+     * Generates PDO object
+     */
     private function initDatabase() {
         $username = Config::get(Config::DB_USERNAME, "");
         $password = Config::get(Config::DB_PASSWORD, "");
@@ -32,6 +50,14 @@ class Database
         }
     }
 
+    /**
+     *
+     * Returns setting from database settings table
+     *
+     * @param string $settingName
+     * @param string|null $default
+     * @return mixed|string|null
+     */
     public function getSetting(string $settingName, ?string $default="") {
         $setting = $this->select("SELECT value FROM settings WHERE name = ?", array("string"), array($settingName));
         if(!$setting) {
@@ -59,12 +85,31 @@ class Database
         }
     }
 
+    /**
+     *
+     * Executes INSERT, UPDATE or DELETE query
+     *
+     * @param $query
+     * @param $types
+     * @param $params
+     * @return mixed
+     */
     public function execute($query, $types, $params) {
         $sth = $this->pdo->prepare($query);
         $this->bindParams($sth, $params, $types);
         return $sth->execute();
     }
 
+    /**
+     *
+     * Executes SELECT query
+     *
+     * @param string $query
+     * @param array|null $types
+     * @param array|null $params
+     * @param bool $assoc
+     * @return mixed
+     */
     public function select(string $query, ?array $types=array(), ?array $params = array(), $assoc = true) {
         $sth = $this->pdo->prepare($query);
         $this->bindParams($sth, $params, $types);
@@ -78,6 +123,10 @@ class Database
         return $sth->fetchAll();
     }
 
+    /**
+     * @param string $table
+     * @return int|mixed
+     */
     public function getLastInsertedId(string $table) {
         $lastId =$this->select(sprintf("SELECT id FROM %s ORDER BY id DESC LIMIT 1", $table), array(), array());
         if(!$lastId) {
@@ -86,28 +135,11 @@ class Database
         return $lastId[0]["id"];
     }
 
-    public function buildUpdateQuery(array $uFields, ?array $wFields=array()) {
-        $query = "UPDATE user SET ";
-        foreach($uFields as $field) {
-            $query .= sprintf("%s=?,", $field);
-        }
-
-        $query = substr($query, 0, strlen($query) - 1);
-        if(!empty($wFields)) {
-            $query = $this->addWhere($wFields, $query);
-        }
-
-        return $query;
-    }
-
-    private function addWhere(array $wFields, string $query) {
-        $query .= " WHERE";
-        foreach($wFields as $wField) {
-            $query .= sprintf(" %s=? AND", $wField);
-        }
-        return substr($query, 0, strlen($query) - strlen(" AND"));
-    }
-
+    /**
+     * @param $sth
+     * @param array $params
+     * @param array $types
+     */
     private function bindParams($sth, array $params, array $types) {
         for($i = 1; $i <= count($params); $i++) {
             if(!empty($types)) {

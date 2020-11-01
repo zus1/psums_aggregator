@@ -1,9 +1,26 @@
 <?php
 
+namespace PsumsAggregator\Classes;
+
+/**
+ * Class Autoinclude
+ * @package PsumsAggregator\Classes
+ *
+ * Class for including other classes.
+ * Works with spl_autoload_register and needs to be called in format spl_autoload_register([Autoinclude::class, "autoload"]);
+ *
+ */
 abstract class Autoinclude
 {
     public static $alreadyIncluded = array();
 
+    /**
+     *
+     * Contains all paths for classes that needs to be included.
+     * All new paths has to be added here
+     *
+     * @return array
+     */
     private static function getPaths() {
         $root = $_SERVER["DOCUMENT_ROOT"];
         return array(
@@ -17,6 +34,9 @@ abstract class Autoinclude
         );
     }
 
+    /**
+     * Inits auto loading. Uses defined paths
+     */
     public static function autoload() {
         foreach(self::getPaths() as $path) {
             $files = scandir($path);
@@ -45,6 +65,12 @@ abstract class Autoinclude
         }
     }
 
+    /**
+     *
+     * Handle inclusion if not already included
+     *
+     * @param array $subjects
+     */
     private static function include(array $subjects) {
         $subjects = array_reverse($subjects);
         foreach($subjects as $rawName) {
@@ -58,6 +84,13 @@ abstract class Autoinclude
         }
     }
 
+    /**
+     *
+     * Parses php file. looks for any parent classes, interfaces or traits and includes them as well
+     *
+     * @param string $rawName
+     * @return array
+     */
     private static function extractParentsInterfacesOrTraits(string $rawName) {
         $parents = array();
         $interfaces = array();
@@ -95,6 +128,13 @@ abstract class Autoinclude
         return array($parents, $interfaces, $traits);
     }
 
+    /**
+     *
+     * Find a path for extracted class
+     *
+     * @param string $rawName
+     * @return string
+     */
     private static function findPath(string $rawName) {
         $validExtensions = array(
             ".php" ,".inc", ".module", ".php4", ".php5", ".hphp", ".phtml", ".ctp",
@@ -110,6 +150,13 @@ abstract class Autoinclude
         return "";
     }
 
+    /**
+     *
+     * Finds this line class SomeClass extend ParentClass Implements SomeInterface
+     *
+     * @param string $phpContent
+     * @return false|string
+     */
     private static function getClassLine(string $phpContent) {
         $endLine = strpos($phpContent, "{");
         $allClassLine = array();
@@ -135,6 +182,13 @@ abstract class Autoinclude
         return substr($phpContent, $startLine, ($endLine + 1) - $startLine);
     }
 
+    /**
+     *
+     * Extracts ParentClass from class line
+     *
+     * @param string $classLine
+     * @return string
+     */
     private static function extractParent(string $classLine) {
         if(!strpos($classLine, "extends")) {
             return "";
@@ -153,6 +207,13 @@ abstract class Autoinclude
         return trim($parts[1]);
     }
 
+    /**
+     *
+     * Extracts SomeUInterface from class line
+     *
+     * @param string $classLine
+     * @return array
+     */
     private static function extractInterfaces(string $classLine) {
         if(!strpos($classLine, "implements")) {
             return array();
@@ -166,6 +227,13 @@ abstract class Autoinclude
         return $interfaces;
     }
 
+    /**
+     *
+     * Extracts traits block and returns all Traits names
+     *
+     * @param string $phpContent
+     * @return array
+     */
     private static function extractTraits(string $phpContent) {
         $endClassLine = strpos($phpContent, "{");
 
@@ -201,6 +269,10 @@ abstract class Autoinclude
         return $traits;
     }
 
+    /**
+     * @param string $filename
+     * @return mixed
+     */
     private static function getRawName(string $filename) {
         return explode(".", $filename)[0];
     }

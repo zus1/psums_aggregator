@@ -1,6 +1,18 @@
 <?php
 
+namespace PsumsAggregator\Classes;
 
+use Exception;
+use PsumsAggregator\Classes\Log\Logger;
+use PsumsAggregator\Interfaces\LoggerInterface;
+
+/**
+ * Class Stream
+ * @package PsumsAggregator\Classes
+ *
+ * All logic related to interacting with streams
+ *
+ */
 class Stream
 {
     private $validator;
@@ -15,6 +27,14 @@ class Stream
         return Factory::getModel(Factory::MODEL_STREAM);
     }
 
+    /**
+     *
+     * Adds new words to existing stream array or creates new one if non found yet
+     *
+     * @param string $streamId
+     * @param string $inputStream
+     * @throws Exception
+     */
     public function addToStream(string $streamId, string $inputStream) {
         $this->logger->setType(Logger::LOGGER_STREAM)->log(json_encode(array("stream_id" => $streamId, "stream" => $inputStream), JSON_UNESCAPED_UNICODE), "input_stream");
         $streamArray = $this->getStreamArray($inputStream);
@@ -44,6 +64,14 @@ class Stream
         ));
     }
 
+    /**
+     *
+     * Converts input stream to array
+     * Validates each word in stream
+     *
+     * @param string $inputStream
+     * @return array
+     */
     private function getStreamArray(string $inputStream) {
         //first lets replace every symbol that is not latter, and lets have uniform brakes for later on
         $inputStream = preg_replace("/[!?_,;:.\-]/", " ", $inputStream);
@@ -63,6 +91,15 @@ class Stream
         return $formatted;
     }
 
+    /**
+     *
+     * Returns chunked array with words chunks(for all available streams) to be used in apply rules cycle
+     * All chunks are trimed to size of smallest stream chunk
+     * Returns chinked stream and original stream used late on
+     *
+     * @return array
+     * @throws Exception
+     */
     public function getStreamsForCycle() {
         $chunkSize = (int)Factory::getObject(Factory::TYPE_DATABASE, true)->getSetting("aggregator_chunk_size", 5);
         $streams = $this->getModel()->select(array("stream_id", "stream"), array());
@@ -93,6 +130,14 @@ class Stream
         return $chunkedStreams;
     }
 
+    /**
+     *
+     * Unifies words chunk sizes
+     *
+     * @param array $streams
+     * @param int $lowestCount
+     * @return array
+     */
     private function trimChunkedStreams(array $streams, int $lowestCount) {
         return array_map(function($stream) use($lowestCount) {
             return array(
@@ -102,6 +147,13 @@ class Stream
         }, $streams);
     }
 
+    /**
+     *
+     * Updates stream array in database.
+     * Removes used chunks in rules cycle.
+     *
+     * @param array $streams
+     */
     public function removeUsedInCycle(array $streams) {
         array_walk($streams, function ($orgChunk, $streamId) {
             if(count($orgChunk["chunked"]) === 0) {

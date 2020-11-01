@@ -1,6 +1,14 @@
 <?php
 
+namespace PsumsAggregator\Classes;
 
+/**
+ * Class HttpCodes
+ * @package PsumsAggregator\Classes
+ *
+ * Library of http codes used in project
+ *
+ */
 class HttpCodes
 {
     const HTTP_ACCEPTED = 202;

@@ -1,6 +1,17 @@
 <?php
 
+namespace PsumsAggregator\Classes;
 
+use Exception;
+
+/**
+ * Class Validator
+ * @package PsumsAggregator\Classes
+ *
+ * Main validation class for project
+ * Uses filters for sanitation
+ *
+ */
 class Validator
 {
     const FILTER_ALPHA_NUM = "alpha_num";
@@ -22,6 +33,12 @@ class Validator
         );
     }
 
+    /**
+     *
+     * Return method to use for validation
+     *
+     * @return array
+     */
     protected function getFilterToMethodMapping() {
         return array(
             self::FILTER_ALPHA_NUM => "filterAlphaNumeric",
@@ -30,6 +47,12 @@ class Validator
         );
     }
 
+    /**
+     *
+     * Returns message to return, if validation is failed
+     *
+     * @return array
+     */
     protected function getErrorMessagesDefinition() {
         return array(
             self::FILTER_ALPHA_NUM => "Field {field} can contain only letters and numbers",
@@ -39,10 +62,15 @@ class Validator
         );
     }
 
-    public function getLanguageFilters() {
-        return array(self::FILTER_ALPHA_NUM, self::FILTER_ALPHA_NUM_PLUS);
-    }
-
+    /**
+     *
+     * Returns need message form error messages array
+     *
+     * @param string $field
+     * @param string $filter
+     * @param string|null $num
+     * @return mixed
+     */
     protected function getErrorMessage(string $field, string $filter, ?string $num=null) {
         $message = str_replace("{field}", $field, $this->getErrorMessagesDefinition()[$filter]);
         if($num !== null) {
@@ -52,6 +80,18 @@ class Validator
         return $message;
     }
 
+    /**
+     *
+     * Applies validation filter method for supplied validation type
+     * Adds resulting message to messages array
+     *
+     * @param string $field
+     * @param array $filters
+     * @param null $value
+     * @param string|null $customPattern
+     * @return $this
+     * @throws Exception
+     */
     public function validate(string $field, array $filters, $value=null, ?string $customPattern="") {
         if(!$value) {
             $value = $this->request->input($field);
@@ -115,7 +155,7 @@ class Validator
     }
 
     public function filterAlphaNumPlus($value) {
-        return $this->filter($value, "/[^A-Za-z0-9&\']/");
+        return $this->filter($value, "/[^A-Za-z0-9&\'+]/");
     }
 
     public function filterAlphaDash($value) {
