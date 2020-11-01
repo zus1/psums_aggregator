@@ -1,4 +1,7 @@
 <?php
+
+use PsumsAggregator\Config\Config;
+
 include_once("classes/httpparser.php");
 include_once("classes/httpcodes.php");
 include_once("config/config.php");
