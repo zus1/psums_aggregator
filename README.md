@@ -58,6 +58,10 @@ To si final reports of each cycle look into corns.log in aggregator container. S
 and run<br><br>
 <pre><code>tail -f cron.log</code></pre>
 This will tail the log and track the inputs in command line.<br><br>
-Results of rules cycles will be saved to <b>rules_results</b> table<br><br>
+Results of rules cycles will be saved to <b>rules_results</b> table<br>
+
+If you wish to run included unit test, it can be done by running following command from /var/www/html directory
+<pre><code>php vendor/phpunit/phpunit/phpunit tests</code></pre>
+
 And that's all she wroth, for other services docs check their respected repositories, and as always have fun :)   
 
