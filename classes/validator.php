@@ -96,6 +96,8 @@ class Validator
         if(!$value) {
             $value = $this->request->input($field);
         }
+        /*var_dump($value);
+        die();*/
         foreach($filters as $filter) {
             $filterCheck = explode(":", $filter);
             $check = null;

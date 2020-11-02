@@ -144,10 +144,7 @@ class Config
      * @return array
      */
     public static function getExtraConfig() {
-        return array(
-            "ADMIN_HOME" => HttpParser::baseUrl() . "views/adm/home.php",
-            "USER_HOME" => HttpParser::baseUrl() . "views/documentation.php",
-        );
+        return array();
     }
 
     public static function setConfig(string $key, $value) {

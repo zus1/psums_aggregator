@@ -16,6 +16,8 @@ use PsumsAggregator\Config\Config;
  */
 class Database
 {
+    public static $_inTest = false;
+
     private $pdo = null;
     private $typeToPdoMapping = array(
         'string' => PDO::PARAM_STR,
@@ -23,7 +25,7 @@ class Database
     );
 
     public function __construct() {
-        if(is_null($this->pdo)) {
+        if(is_null($this->pdo) && self::$_inTest === false) {
             $this->initDatabase();
         }
     }

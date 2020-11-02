@@ -45,7 +45,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - '80:80'
+      - '8082:80'
     volumes:
       - ../psums-api:/var/www/html
     links:
